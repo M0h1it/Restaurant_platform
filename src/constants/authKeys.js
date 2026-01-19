@@ -1,1 +1,1 @@
-export const AUTH_USER_KEY = "restaurant_admin_user";
+export const AUTH_USER_KEY = "restaurant_auth";

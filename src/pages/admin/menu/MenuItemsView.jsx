@@ -1,10 +1,12 @@
 import { useState } from "react";
 import CategoryList from "./components/CategoryList";
+import { deleteCategoryApi } from "../../../services/menu.service";
 import MenuItemCard from "./components/MenuItemCard";
 import AddCategoryModal from "./components/AddCategoryModal";
 import AddItemModal from "./components/AddItemModal";
 import EditItemModal from "./components/EditItemModal";
 import DeleteConfirmModal from "./components/DeleteConfirmModal";
+import { updateMenuItem } from "../../../services/menu.service";
 import { deleteMenuItem } from "../../../services/menu.service";
 import { FaRepeat } from "react-icons/fa6";
 
@@ -22,10 +24,22 @@ const MenuItemsView = ({
   const [deleteItem, setDeleteItem] = useState(null);
   const [deleteCategory, setDeleteCategory] = useState(null);
 
+  const activeCategoryObj = categories.find((c) => c.name === activeCategory);
+  const handleToggleStatus = async (item) => {
+    const updated = {
+      ...item,
+      status: item.status ? 0 : 1,
+    };
+
+    await updateMenuItem(item.id, updated);
+
+    setItems((prev) => prev.map((i) => (i.id === item.id ? updated : i)));
+  };
+
   const filteredItems =
     activeCategory === "All"
       ? items
-      : items.filter((i) => i.category === activeCategory);
+      : items.filter((i) => i.category_id === activeCategoryObj?.id);
 
   return (
     <>
@@ -33,7 +47,7 @@ const MenuItemsView = ({
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h6 className="mb-0">Menu Items</h6>
 
-        <div className="d-flex flex-wrap gap-2">
+        <div className="d-flex gap-2">
           <button
             className="btn btn-outline-dark btn-sm"
             onClick={() => setShowAddCategory(true)}
@@ -45,27 +59,35 @@ const MenuItemsView = ({
             className="btn btn-outline-dark btn-sm"
             onClick={() => setMode("image")}
           >
-            <FaRepeat /> Switch to Image
+            Switch to Image
           </button>
         </div>
       </div>
 
       <div className="row">
         {/* LEFT */}
-        <div className="col-12 col-md-3 mb-3 mb-md-0">
+        <div className="col-md-3">
           <CategoryList
             categories={categories}
             active={activeCategory}
             onSelect={setActiveCategory}
             onDeleteCategory={setDeleteCategory}
+            onCategoryUpdated={(updated) => {
+              setCategories((prev) =>
+                prev.map((c) => (c.id === updated.id ? updated : c))
+              );
+
+              if (activeCategory === updated.oldName) {
+                setActiveCategory(updated.name);
+              }
+            }}
           />
         </div>
 
         {/* RIGHT */}
-        <div className="col-12 col-md-9">
-          <div className="d-flex flex-column flex-sm-row justify-content-between gap-2 mb-3">
-            <h6 className="mb-0">{activeCategory}</h6>
-
+        <div className="col-md-9">
+          <div className="d-flex justify-content-between mb-3">
+            <h6>{activeCategory}</h6>
             <button
               className="btn btn-outline-dark btn-sm"
               onClick={() => setShowAddItem(true)}
@@ -81,6 +103,7 @@ const MenuItemsView = ({
                   item={item}
                   onEdit={setEditItem}
                   onDelete={setDeleteItem}
+                  onToggleStatus={handleToggleStatus}
                 />
               </div>
             ))}
@@ -106,7 +129,7 @@ const MenuItemsView = ({
       {/* EDIT ITEM */}
       {editItem && (
         <EditItemModal
-          show={true}
+          show
           item={editItem}
           categories={categories}
           onClose={() => setEditItem(null)}
@@ -117,36 +140,39 @@ const MenuItemsView = ({
           }
         />
       )}
-      {/* Delete ITEM */}
+
+      {/* DELETE ITEM */}
       {deleteItem && (
         <DeleteConfirmModal
-          show={true}
+          show
           onClose={() => setDeleteItem(null)}
           onConfirm={async () => {
             await deleteMenuItem(deleteItem.id);
-
             setItems((prev) => prev.filter((i) => i.id !== deleteItem.id));
-
             setDeleteItem(null);
           }}
         />
       )}
+
+      {/* DELETE CATEGORY */}
       {deleteCategory && (
         <DeleteConfirmModal
-          show={true}
+          show
           onClose={() => setDeleteCategory(null)}
           onConfirm={async () => {
-            // 🔥 API READY (later)
-            // await deleteCategoryApi(deleteCategory.id);
+            await deleteCategoryApi(deleteCategory.id);
 
-            // Remove category from UI
+            // 🔥 remove category
             setCategories((prev) =>
               prev.filter((c) => c.id !== deleteCategory.id)
             );
 
-            // Optional: reset active category
-            setActiveCategory("All");
+            // 🔥 remove items of this category
+            setItems((prev) =>
+              prev.filter((i) => i.category_id !== deleteCategory.id)
+            );
 
+            setActiveCategory("All");
             setDeleteCategory(null);
           }}
         />

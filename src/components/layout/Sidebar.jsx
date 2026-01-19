@@ -3,17 +3,13 @@ import {
   FaChair,
   FaUsers,
   FaUtensils,
-  FaUserShield,
 } from "react-icons/fa";
 import { RiUserSettingsLine } from "react-icons/ri";
 import { IoSettingsOutline } from "react-icons/io5";
-import { hasPermission } from "../../utils/permissions";
-import { getCurrentRole } from "../../utils/auth";
+import { can as canPermission } from "../../utils/permissions";
+
 
 const Sidebar = ({ open, onClose, isDesktop }) => {
-  const role = getCurrentRole();
-  const can = (p) => hasPermission(role, p);
-
   const linkStyle = ({ isActive }) => ({
     backgroundColor: isActive ? "#e5e5e5" : "transparent",
     color: isActive ? "#000" : "#fff",
@@ -46,40 +42,67 @@ const Sidebar = ({ open, onClose, isDesktop }) => {
           transition: "transform 0.3s ease",
         }}
       >
-        <NavLink to="/admin/tables" className="nav-link mb-4" onClick={onClose}>
+        <NavLink to="/dashboard" className="nav-link mb-4" onClick={onClose}>
           <h5 className="text-white">Admin Panel</h5>
         </NavLink>
 
+        {/* MAIN MODULES */}
         <ul className="nav flex-column gap-2">
-          {can("manage_tables") && (
-            <NavLink to="/admin/tables" className="nav-link" style={linkStyle} onClick={onClose}>
+          {canPermission("manage_tables") && (
+            <NavLink
+              to="/admin/tables"
+              className="nav-link"
+              style={linkStyle}
+              onClick={onClose}
+            >
               <FaChair className="me-2" /> Manage Tables
             </NavLink>
           )}
 
-          {can("manage_waiters") && (
-            <NavLink to="/admin/waiter" className="nav-link" style={linkStyle} onClick={onClose}>
-              <FaUsers className="me-2" /> Manage Waiters
+          {canPermission("manage_menu") && (
+            <NavLink
+              to="/admin/menu"
+              className="nav-link"
+              style={linkStyle}
+              onClick={onClose}
+            >
+              <FaUtensils className="me-2" /> Menu Items
             </NavLink>
           )}
 
-          {can("menu_items") && (
-            <NavLink to="/admin/menu" className="nav-link" style={linkStyle} onClick={onClose}>
-              <FaUtensils className="me-2" /> Menu Items
+          {canPermission("manage_waiters") && (
+            <NavLink
+              to="/admin/waiter"
+              className="nav-link"
+              style={linkStyle}
+              onClick={onClose}
+            >
+              <FaUsers className="me-2" /> Manage Waiters
             </NavLink>
           )}
         </ul>
 
+        {/* SETTINGS / MANAGEMENT */}
         <ul className="nav flex-column gap-2 mt-auto">
-          {can("manage_staff") && (
-            <NavLink to="/admin/staff" className="nav-link" style={linkStyle} onClick={onClose}>
+          {canPermission("view_staff") && (
+            <NavLink
+              to="/admin/staff"
+              className="nav-link"
+              style={linkStyle}
+              onClick={onClose}
+            >
               <RiUserSettingsLine className="me-2" /> Staff
             </NavLink>
           )}
 
-          {can("role_permissions") && (
-            <NavLink to="/admin/roles" className="nav-link" style={linkStyle} onClick={onClose}>
-              <IoSettingsOutline  className="me-2" /> Roles & Permissions
+          {canPermission("manage_roles") && (
+            <NavLink
+              to="/admin/roles"
+              className="nav-link"
+              style={linkStyle}
+              onClick={onClose}
+            >
+              <IoSettingsOutline className="me-2" /> Roles & Permissions
             </NavLink>
           )}
         </ul>

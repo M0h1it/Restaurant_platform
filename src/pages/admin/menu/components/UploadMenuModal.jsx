@@ -1,73 +1,89 @@
 import { useState } from "react";
 import { uploadMenuImage } from "../../../../services/menu.service";
 
-const UploadMenuModal = ({ onClose, onUploaded }) => {
+const UploadMenuModal = ({ onClose, onUploaded, categories = [] }) => {
   const [file, setFile] = useState(null);
-  const [name, setName] = useState("");
-  const [preview, setPreview] = useState(null);
-
-  const handleFile = (e) => {
-    const f = e.target.files[0];
-    if (!f) return;
-
-    setFile(f);
-    setPreview(URL.createObjectURL(f));
-  };
+  const [categoryId, setCategoryId] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleSave = async () => {
-    if (!file || !name.trim()) return;
+    if (!file || !categoryId) {
+      alert("Please select category and image");
+      return;
+    }
 
-    const res = await uploadMenuImage(file, name);
-    onUploaded(res.data);
-    onClose();
+    try {
+      setLoading(true);
+
+      const uploaded = await uploadMenuImage(file, Number(categoryId));
+
+      onUploaded(uploaded);
+      onClose();
+    } catch (err) {
+      console.error(err);
+      alert("Failed to upload image");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <>
       <div className="modal-backdrop fade show" />
 
-      <div className="modal fade show d-block">
+      <div className="modal fade show d-block" tabIndex="-1">
         <div className="modal-dialog modal-dialog-centered">
           <div className="modal-content">
 
+            {/* HEADER */}
             <div className="modal-header">
               <h5 className="modal-title">Upload Menu Image</h5>
               <button className="btn-close" onClick={onClose} />
             </div>
 
+            {/* BODY */}
             <div className="modal-body">
-              {preview && (
-                <img
-                  src={preview}
-                  className="img-fluid rounded mb-3"
-                  style={{ maxHeight: 200, objectFit: "contain" }}
-                />
-              )}
 
+              {/* CATEGORY */}
+              <label className="form-label fw-semibold">
+                Category
+              </label>
+              <select
+                className="form-select mb-3"
+                value={categoryId}
+                onChange={(e) => setCategoryId(e.target.value)}
+              >
+                <option value="">Select Category</option>
+                {categories.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
+
+              {/* IMAGE */}
+              <label className="form-label fw-semibold">
+                Menu Image
+              </label>
               <input
                 type="file"
-                className="form-control mb-2"
-                onChange={handleFile}
+                className="form-control"
+                onChange={(e) => setFile(e.target.files[0])}
               />
 
-              <input
-                className="form-control fw-bold"
-                placeholder="Menu image name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-              />
             </div>
 
+            {/* FOOTER */}
             <div className="modal-footer">
               <button className="btn btn-light" onClick={onClose}>
                 Cancel
               </button>
               <button
                 className="btn btn-danger"
-                disabled={!file || !name}
+                disabled={loading}
                 onClick={handleSave}
               >
-                Save
+                {loading ? "Uploading..." : "Upload"}
               </button>
             </div>
 

@@ -1,16 +1,18 @@
 import { Navigate } from "react-router-dom";
-import { hasPermission } from "../../utils/permissions";
-import { getCurrentRole } from "../../utils/auth";
-import { ROLE_CONFIG } from "../../config/roles.config";
+import { can } from "../../utils/permissions";
+import { getCurrentUser } from "../../utils/auth";
 
 const ProtectedRoute = ({ children, permission }) => {
-  const role = getCurrentRole();
+  const user = getCurrentUser();
 
-  if (!role) return <Navigate to="/" replace />;
+  // ❌ Not logged in
+  if (!user) {
+    return <Navigate to="/" replace />;
+  }
 
-  if (permission && !hasPermission(role, permission)) {
-  const config = ROLE_CONFIG[role];
-  return <Navigate to={config?.defaultRoute || "/"} replace />;
+  // 🔐 Permission required but missing
+  if (permission && !can(permission)) {
+    return <Navigate to="/unauthorized" replace />;
   }
 
   return children;

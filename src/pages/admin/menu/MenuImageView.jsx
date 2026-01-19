@@ -2,7 +2,8 @@ import { useState } from "react";
 import UploadMenuModal from "./components/UploadMenuModal";
 import MenuImageCard from "./components/MenuImageCard";
 
-const MenuImageView = ({ images, setImages, setMode }) => {
+
+const MenuImageView = ({ images, setImages, setMode, categories }) => {
   const [showUpload, setShowUpload] = useState(false);
 
   const handleImageUpdate = (updated) => {
@@ -53,6 +54,7 @@ const MenuImageView = ({ images, setImages, setMode }) => {
 
       {showUpload && (
         <UploadMenuModal
+        categories={categories}
           onClose={() => setShowUpload(false)}
           onUploaded={(img) => setImages((prev) => [...prev, img])}
         />

@@ -26,33 +26,32 @@ const AddItemModal = ({ show, onClose, categories = [], onAdded }) => {
   };
 
   const handleSave = async () => {
-    if (!name || !price || !category) return;
+  if (!name || !price || !category) return;
 
-    const newItem = {
-      name,
-      price,
-      description,
-      secondary,
-      type,
-      category,
-      image: preview, // local preview for now
-    };
-
-    const res = await addMenuItem(newItem);
-    onAdded(res.data);
-
-    // reset
-    setName("");
-    setPrice("");
-    setDescription("");
-    setSecondary("");
-    setType("veg");
-    setCategory("");
-    setImage(null);
-    setPreview(null);
-
-    onClose();
+  const payload = {
+    name,
+    price,
+    description,
+    secondary,
+    type,
+    category_id: Number(category),
   };
+
+  const created = await addMenuItem(payload);
+  onAdded(created);
+
+  // reset
+  setName("");
+  setPrice("");
+  setDescription("");
+  setSecondary("");
+  setType("veg");
+  setCategory("");
+  setPreview(null);
+
+  onClose();
+};
+
 
   return (
     <>
@@ -152,7 +151,7 @@ const AddItemModal = ({ show, onClose, categories = [], onAdded }) => {
                   >
                     <option value="">Select Category</option>
                     {categories.map((c) => (
-                      <option key={c.id} value={c.name}>
+                      <option key={c.id} value={c.id}>
                         {c.name}
                       </option>
                     ))}

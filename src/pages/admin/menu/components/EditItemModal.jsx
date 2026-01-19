@@ -13,7 +13,7 @@ const EditItemModal = ({
   const [description, setDescription] = useState(item?.description || "");
   const [secondary, setSecondary] = useState(item?.secondary || "");
   const [type, setType] = useState(item?.type || "veg");
-  const [category, setCategory] = useState(item?.category || "");
+  const [category, setCategory] = useState(item?.category_id || "");
   const [preview, setPreview] = useState(item?.image || null);
 
   if (!show || !item) return null;
@@ -29,21 +29,21 @@ const EditItemModal = ({
   };
 
   const handleSave = async () => {
-    const updatedData = {
-      name,
-      price,
-      description,
-      secondary,
-      type,
-      category,
-      image: preview,
-    };
-
-    const res = await updateMenuItem(item.id, updatedData);
-    onUpdated({ ...item, ...updatedData });
-
-    onClose();
+  const updatedData = {
+    name,
+    price,
+    description,
+    secondary,
+    type,
+    category_id: category,
+    status: item.status,
   };
+
+  await updateMenuItem(item.id, updatedData);
+  onUpdated({ ...item, ...updatedData });
+  onClose();
+};
+
 
   return (
     <>
@@ -139,17 +139,18 @@ const EditItemModal = ({
                 <div className="col-md-6">
                   <label className="form-label fw-semibold">Category</label>
                   <select
-                    className="form-select"
-                    value={category}
-                    onChange={(e) => setCategory(e.target.value)}
-                  >
-                    <option value="">Select Category</option>
-                    {categories.map((c) => (
-                      <option key={c.id} value={c.name}>
-                        {c.name}
-                      </option>
-                    ))}
-                  </select>
+  className="form-select"
+  value={category}
+  onChange={(e) => setCategory(Number(e.target.value))}
+>
+  <option value="">Select Category</option>
+  {categories.map((c) => (
+    <option key={c.id} value={c.id}>
+      {c.name}
+    </option>
+  ))}
+</select>
+
                 </div>
 
                 {/* IMAGE */}

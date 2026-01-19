@@ -1,20 +1,30 @@
-const MenuItemCard = ({ item, onEdit, onDelete }) => {
+const MenuItemCard = ({ item, onEdit, onDelete, onToggleStatus }) => {
   return (
     <div className="card h-100">
       <img
-        src={item.image}
+        src={item.image || "/placeholder.png"}
         className="card-img-top"
         style={{ height: 160, objectFit: "cover" }}
         alt={item.name}
       />
 
+      {/* STATUS BUTTON */}
+      <button
+        className={`btn btn-sm mt-2 ${
+          item.status ? "btn-success" : "btn-secondary"
+        }`}
+        onClick={() => onToggleStatus(item)}
+      >
+        {item.status ? "Active" : "Inactive"}
+      </button>
+
       <div className="card-body d-flex flex-column">
-        <small className="text-muted">{item.category}</small>
+        <small className="text-muted">{item.category_name}</small>
 
         <div className="d-flex justify-content-between">
           <strong>{item.name}</strong>
           <span>₹{item.price}</span>
-        </div>
+        </div>  
 
         <p className="small mt-2">{item.description}</p>
 
@@ -37,5 +47,6 @@ const MenuItemCard = ({ item, onEdit, onDelete }) => {
     </div>
   );
 };
+
 
 export default MenuItemCard;

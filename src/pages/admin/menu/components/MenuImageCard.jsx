@@ -11,8 +11,12 @@ const MenuImageCard = ({ image, onUpdated, onDeleted }) => {
     const file = e.target.files[0];
     if (!file) return;
 
-    const res = await replaceMenuImage(image.id, file);
-    onUpdated(res.data);
+    const updated = await replaceMenuImage(image.id, file);
+
+    onUpdated({
+      ...image,
+      url: updated.url,
+    });
   };
 
   const handleDelete = async () => {
@@ -26,11 +30,13 @@ const MenuImageCard = ({ image, onUpdated, onDeleted }) => {
     <div className="border rounded p-2 h-100 d-flex flex-column">
 
       {/* IMAGE */}
-      <div className="rounded mb-2  d-flex align-items-center justify-content-center"
-           style={{ height: 260 }}>
+      <div
+        className="rounded mb-2 d-flex align-items-center justify-content-center"
+        style={{ height: 260 }}
+      >
         <img
           src={image.url}
-          alt={image.name}
+          alt="menu"
           className="img-fluid"
           style={{ maxHeight: "100%", objectFit: "contain" }}
         />
@@ -38,14 +44,16 @@ const MenuImageCard = ({ image, onUpdated, onDeleted }) => {
 
       {/* FOOTER */}
       <div className="d-flex justify-content-between align-items-center mt-auto">
-        <small className="text-muted">{image.name}</small>
+        <small className="text-muted">
+          Category #{image.category_id}
+        </small>
 
         <div className="dropdown">
           <button
-            className="btn btn-lg btn-light fw-bold"
+            className="btn btn-sm btn-light"
             data-bs-toggle="dropdown"
           >
-            ...
+            ⋮
           </button>
 
           <ul className="dropdown-menu dropdown-menu-end">

@@ -1,15 +1,16 @@
 import MenuHeader from "../components/MenuHeader";
 import BottomNav from "../components/BottomNav";
 import { useEffect, useState } from "react";
-import { WaiterAPI } from "../api/waiter.api";
+import { WaiterAPI } from "../../../api/waiter.api";
 import { FaPhoneAlt, FaReceipt } from "react-icons/fa";
 
 export default function Notifications() {
   const [notifications, setNotifications] = useState([]);
 
   useEffect(() => {
-    WaiterAPI.getNotifications().then(setNotifications);
-  }, []);
+  WaiterAPI.getNotifications().then(setNotifications);
+}, []);
+
 
   const clearNotification = async (id) => {
     await WaiterAPI.resolveRequest(id);

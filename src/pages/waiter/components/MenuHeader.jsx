@@ -1,10 +1,13 @@
 import React from "react";
 import { FaInfoCircle, FaUser } from "react-icons/fa";
 import { useLocation } from "react-router-dom";
+import { logout } from "../../../utils/auth";
+
 
 export default function MenuHeader({ onLogOut, onToggleLegend }) {
   const location = useLocation();
-  const hideActions = location.pathname === "/notifications";
+  const hideActions = location.pathname === "/waiter/notifications";
+
 
   return (
     <header className="d-flex justify-content-between align-items-center px-3 py-3 shadow-sm bg-danger">

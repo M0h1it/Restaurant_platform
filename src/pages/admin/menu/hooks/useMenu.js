@@ -9,9 +9,9 @@ export const useMenu = () => {
   const [images, setImages] = useState([]);
 
   useEffect(() => {
-    service.getCategories().then(res => setCategories(res.data || []));
-    service.getMenuItems().then(res => setItems(res.data || []));
-    service.getMenuImages().then(res => setImages(res.data || []));
+    service.getCategories().then(setCategories);
+    service.getMenuItems().then(setItems);
+    service.getMenuImages().then(setImages);
   }, []);
 
   const setMode = (newMode) => {

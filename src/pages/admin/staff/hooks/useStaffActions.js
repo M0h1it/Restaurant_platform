@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
 import { AdminAPI } from "../../../../api/admin.api";
-import { hasPermission } from "../../../../utils/permissions";
+import { can } from "../../../../utils/permissions";
 import { getCurrentUser } from "../../../../utils/auth";
 
 export const useStaffActions = () => {
   const CURRENT_USER = getCurrentUser();
   const [staff, setStaff] = useState([]);
-  const canAddStaff = hasPermission(CURRENT_USER?.role, "manage_staff");
+  const canAddStaff = can(CURRENT_USER?.role, "manage_staff");
 
   useEffect(() => {
     AdminAPI.getStaff().then(setStaff);

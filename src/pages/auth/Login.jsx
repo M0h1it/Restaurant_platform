@@ -1,98 +1,56 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { AUTH_USER_KEY } from "../../constants/authKeys";
-import { AdminAPI } from "../../api/admin.api";
-import { ROLE_CONFIG } from "../../config/roles.config";
+import { login } from "../../utils/auth";
+import { can } from "../../utils/permissions";
 
 const Login = () => {
   const navigate = useNavigate();
-
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const handleLogin = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    let staff = await AdminAPI.getStaff();
+  try {
+    const authUser = await login(email, password); // 👈 capture return
 
-    // DEV MODE: ensure admin exists
-    if (staff.length === 0) {
-      staff = [
-        {
-          id: Date.now(),
-          userId: "U001",
-          name: "Admin",
-          username: "admin",
-          password: "admin123",
-          role: "Admin",
-          isActive: true,
-        },
-        {
-          id: Date.now() + 1,
-          userId: "U002",
-          name: "Waiter",
-          username: "waiter@123",
-          password: "1234",
-          role: "Waiter",
-          isActive: true,
-        },
-      ];
-      await AdminAPI.saveStaff(staff);
-    }
+    const permissions = authUser.permissions || [];
 
-    const user = staff.find(
-      (u) =>
-        u.username === username.trim() &&
-        u.password === password.trim() &&
-        u.isActive !== false
-    );
-
-    if (!user) {
-      alert("Invalid username or password");
+    if (permissions.includes("view_dashboard_admin")) {
+      navigate("/dashboard", { replace: true });
       return;
     }
 
-    // 🔐 SAVE AUTH (SINGLE SOURCE)
-    localStorage.setItem(
-      AUTH_USER_KEY,
-      JSON.stringify({
-        userId: user.userId,
-        name: user.name,
-        role: user.role,
-      })
-    );
+    if (permissions.includes("view_dashboard_waiter")) {
+      navigate("/dashboard", { replace: true });
+      return;
+    }
 
-    // 🔀 ROLE-BASED REDIRECT
-    
-    
-  const roleConfig = ROLE_CONFIG[user.role];
-    if (!roleConfig) {
-  alert("Role not configured");
-  return;
-}
-navigate(roleConfig.defaultRoute);
+    alert("You are not authorized to access any dashboard");
+  } catch (err) {
+    alert("Invalid credentials or unauthorized");
+  }
+};
 
-  };
 
   return (
     <div className="vh-100 d-flex justify-content-center align-items-center bg-light">
-      <div className="card p-4 shadow" style={{ width: "350px" }}>
+      <div className="card p-4 shadow" style={{ width: 350 }}>
         <h4 className="text-center mb-3">Staff Login</h4>
 
         <form onSubmit={handleLogin}>
           <div className="mb-3">
-            <label className="form-label">Username</label>
+            <label>Email</label>
             <input
-              type="text"
               className="form-control"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               required
             />
           </div>
 
           <div className="mb-3">
-            <label className="form-label">Password</label>
+            <label>Password</label>
             <input
               type="password"
               className="form-control"
@@ -104,12 +62,6 @@ navigate(roleConfig.defaultRoute);
 
           <button className="btn btn-danger w-100">Login</button>
         </form>
-
-        <div className="mt-3 text-muted small">
-          <strong>Test Logins:</strong>
-          <div>Admin → admin / admin123</div>
-          <div>Waiter → waiter@123 / 1234</div>
-        </div>
       </div>
     </div>
   );
